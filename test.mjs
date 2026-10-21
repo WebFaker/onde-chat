@@ -37,10 +37,10 @@ test('PostgreSQL, Better Auth, profils stables et accès aux messages',{timeout:
   assert.equal((await api('messages?channel=1 OR 1=1',{cookie})).status,400);
   assert.equal((await api('channels',{cookie,method:'POST',data:null})).status,400);
   assert.equal((await api('channels',{cookie,method:'POST',raw:'not-json'})).status,400);
-  assert.equal((await api('channels',{cookie,method:'POST',raw:'x'.repeat(17000)})).status,413);
+  assert.equal((await api('channels',{cookie,method:'POST',raw:'x'.repeat(1500001)})).status,413);
   assert.equal((await api('messages?channel=1',{cookie,method:'POST',data:{text:'x'.repeat(2001)}})).status,400);
   assert.equal((await api('messages?channel=1',{cookie,method:'DELETE'})).status,405);
-  const members=await api('members',{cookie});assert.deepEqual(Object.keys(members.data[0]).sort(),['id','name']);
+  const members=await api('members',{cookie});assert.ok(members.data[0].id);assert.equal(members.data[0].email,undefined);
   const duplicate=await authCall('sign-up/email',{name:'Alice',email:'alice2@example.com',password:'pass-test-789'});assert.equal(duplicate.status,409);
   const invalid=await authCall('sign-up/email',{name:'bad name!',email:'invalid@example.com',password:'pass-test-789'});assert.equal(invalid.status,400);
   for(let n=0;n<155;n++)await pool.query('INSERT INTO messages(channel_id,user_id,body) VALUES($1,$2,$3)',[1,me.data.id,'message '+n]);

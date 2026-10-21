@@ -1,7 +1,8 @@
 import {test,expect} from '@playwright/test';
 let clientIP=0;
 async function signup(page,name){await page.setExtraHTTPHeaders({'x-forwarded-for':'192.0.2.'+(++clientIP)});await page.goto('/');await page.locator('#auth-toggle').click();await page.locator('#name').fill(name);await page.locator('#email').fill(name+'@example.com');await page.locator('#password').fill('browser-test-password-123');await page.locator('#auth-submit').click();await expect(page.locator('#app')).toBeVisible();}
-async function channel(page,name){page.once('dialog',d=>d.accept(name));await page.locator('#add-channel').click();await expect(page.locator('#channel-title')).toHaveText(name);}
+async function channel(page,name){await page.locator('#add-channel').click();await page.locator('#modal-name').fill(name);await page.getByRole('button',{name:'Créer le salon',exact:true}).click();await expect(page.locator('#channel-title')).toHaveText(name);}
+
 test('desktop : comptes, salons, messages croisés, sauts de ligne, rechargement et sortie',async({browser})=>{
  const ca=await browser.newContext(),cb=await browser.newContext();const a=await ca.newPage(),b=await cb.newPage();const errors=[];a.on('pageerror',e=>errors.push(e.message));b.on('pageerror',e=>errors.push(e.message));
  await signup(a,'BrowserAlice');await signup(b,'BrowserBob');await channel(a,'browser-chat');
@@ -29,7 +30,7 @@ test('brouillons par salon, double envoi et changement de salon pendant un envoi
  await signup(page,'BrowserDraft');
  await page.locator('#message').fill('Brouillon général');await page.getByRole('button',{name:/^#\s*projets$/}).click();await expect(page.locator('#message')).toHaveValue('');await page.locator('#message').fill('Brouillon projets');await page.getByRole('button',{name:/^#\s*général$/}).click();await expect(page.locator('#message')).toHaveValue('Brouillon général');
  let sends=0,release;const gate=new Promise(r=>release=r);await page.route('**/api/messages?channel=1',async route=>{if(route.request().method()==='POST'){sends++;await gate;await route.continue();}else await route.continue();});
- await page.locator('#message').fill('Envoi unique');await page.locator('#message').press('Enter');await expect(page.locator('#composer button')).toBeDisabled();await page.locator('#message').press('Enter');await page.locator('#message').fill('Nouveau brouillon pendant envoi');await page.getByRole('button',{name:/^#\s*projets$/}).click();await expect(page.locator('#message')).toHaveValue('Brouillon projets');release();await expect(page.locator('#composer button')).toBeEnabled();await expect(page.locator('#message')).toHaveValue('Brouillon projets');expect(sends).toBe(1);
+ await page.locator('#message').fill('Envoi unique');await page.locator('#message').press('Enter');await expect(page.locator('#composer button.send')).toBeDisabled();await page.locator('#message').press('Enter');await page.locator('#message').fill('Nouveau brouillon pendant envoi');await page.getByRole('button',{name:/^#\s*projets$/}).click();await expect(page.locator('#message')).toHaveValue('Brouillon projets');release();await expect(page.locator('#composer button.send')).toBeEnabled();await expect(page.locator('#message')).toHaveValue('Brouillon projets');expect(sends).toBe(1);
  await page.getByRole('button',{name:/^#\s*général$/}).click();await expect(page.locator('#messages')).toContainText('Envoi unique');await expect(page.locator('#message')).toHaveValue('Nouveau brouillon pendant envoi');
 });
 test('mobile : fermer le menu avec Échap, puis en cliquant dans la conversation',async({browser})=>{

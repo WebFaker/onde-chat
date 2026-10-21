@@ -1,71 +1,80 @@
 # Onde
-Chat communautaire en français : frontend JavaScript, API Node.js, PostgreSQL et Better Auth. Aucune dépendance à Supabase à l'exécution. Les comptes, hachages de mots de passe et sessions restent dans votre base. Cette version vise un test personnel avec Vercel Hobby et une base PostgreSQL gratuite (par exemple Neon), selon les conditions et quotas des fournisseurs.
+Une application communautaire française, avec interface sombre responsive, animations Lottie locales, API Node.js portable, PostgreSQL et authentification Better Auth. Frontend et backend ne dépendent pas des API de données d'un hébergeur.
 
-## Démarrage local
-Node.js 24+, une base PostgreSQL dédiée et une URL de connexion privée.
+## Fonctions disponibles
+- Espaces communautaires privés, invitations de sept jours, rôles propriétaire/administration/modération/membre, exclusion et journal de modération.
+- Un espace d'accueil commun à tous les inscrits. Les espaces créés ensuite sont privés. Dans l'accueil, les membres peuvent créer des salons ; ailleurs cette permission est réservée à la modération.
+- Salons textuels et vocaux, messages privés entre membres partageant un espace.
+- Réponses, six réactions, modification de ses messages, suppression par l'auteur ou la modération, épinglage par la modération, recherche dans le salon et indicateurs de messages non lus.
+- Pièces jointes téléchargées avec autorisation : PNG, JPEG, WebP, GIF, PDF et texte. Limite 1 Mo par fichier et 20 Mo par utilisateur. Stockage PostgreSQL pour ce prototype ; prévoir un stockage objet pour davantage de volume.
+- Présentation de profil, présence récemment active, progression et quatre badges personnels. Les messages ne rapportent des points que sur les dix premiers envois ; cette progression n'est pas un classement public.
+- Appels LiveKit : jetons autorisés par salon, micro, caméra, partage d'écran et déconnexion. **Un service LiveKit doit être connecté pour que les appels fonctionnent.** Les tests ne constituent pas une validation réelle de deux appels audio/vidéo sur Internet.
+
+## Installer et lancer
+Node.js 24 et PostgreSQL. Aucun compte Supabase requis.
 
 ```sh
 npm ci
 cp .env.example .env
-```
-
-Renseigner `.env` :
-- `DATABASE_URL` : URL PostgreSQL ; pour Neon, utiliser la connexion poolée fournie, avec TLS.
-- `BETTER_AUTH_SECRET` : secret aléatoire d'au moins 32 caractères, uniquement côté serveur.
-- `BETTER_AUTH_URL` : origine exacte, par exemple `http://localhost:3000`.
-- `PORT` : facultatif, 3000 par défaut.
-
-Puis :
-
-```sh
+# Renseigner .env, puis :
 npm run db:migrate
+npm run build
 npm start
 ```
 
-Lancer les migrations comme étape de livraison, jamais à chaque requête. Le script journalise les versions et leurs sommes de contrôle, utilise un verrou PostgreSQL et une transaction par migration. Les migrations appliquées sont immuables : ajouter un nouveau fichier pour toute évolution. L'amorçage des quatre salons est rejouable.
+Variables obligatoires, uniquement côté serveur :
+- `DATABASE_URL` : connexion PostgreSQL, poolée pour le trafic de l'application et protégée par TLS en production.
+- `BETTER_AUTH_URL` : origine exacte du site, `http://localhost:3000` localement, `https://onde-chat.vercel.app` en production.
+- `BETTER_AUTH_SECRET` : secret aléatoire de 32 caractères minimum.
+- `PORT` : facultatif, 3000 par défaut.
 
-## Déploiement Vercel
-Le projet peut être livré directement par l'API Vercel ou relié à GitHub. Preset **Other**, sortie `public`, aucune commande de build. L'installation doit exécuter `npm ci` (ne pas configurer une commande d'installation vide). Le fichier `api/handler.js` monte exactement la même API que le serveur Node local. Utiliser Node 24.
+Pour les migrations, utiliser une connexion PostgreSQL directe : le runner utilise un verrou consultatif de session. Il journalise les fichiers et leurs sommes de contrôle et applique une transaction par fichier. Ne jamais modifier une migration appliquée. Les migrations sont une étape de livraison, jamais une opération exécutée pendant une requête web. La migration `004_communities.sql` conserve les messages et ajoute les comptes existants à l'espace d'accueil.
 
-Configurer les trois variables côté serveur, puis exécuter `npm run db:migrate` sur la base cible avant le déploiement. Ne pas exposer `DATABASE_URL` ou `BETTER_AUTH_SECRET` dans le frontend. `BETTER_AUTH_URL` doit correspondre à l'URL stable de production en HTTPS. Ne pas connecter les previews à la base de production : utiliser une base dédiée et l'origine exacte de chaque environnement.
+## Activer les appels
+Configurer un serveur LiveKit Cloud ou auto-hébergé, puis ajouter dans l'environnement serveur :
 
-Vérifier après publication : inscription et connexion avec deux navigateurs, échange de messages, création de salon, déconnexion et refus des requêtes anonymes. Le projet Vercel existant s'appelle `onde-chat` ; conserver son identité lors de la reprise du déploiement.
+```text
+LIVEKIT_URL=wss://votre-serveur-livekit
+LIVEKIT_API_KEY=...
+LIVEKIT_API_SECRET=...
+```
 
-## Autre hébergeur / Docker
-Le Dockerfile installe uniquement les dépendances de production avec `npm ci`. Injecter les trois variables à l'exécution. Lancer la migration une seule fois avant la nouvelle version, puis le serveur derrière HTTPS. Les sessions et données ne dépendent pas de la mémoire du processus. La diffusion utilise une lecture périodique toutes les cinq secondes ; un serveur WebSocket pourra remplacer ce module si l'usage le justifie.
+La clé secrète ne doit jamais être placée dans les fichiers publics. L'API génère des jetons courts, limités à un salon vocal dont l'utilisateur est membre. Les contrôles d'accès sont vérifiés à chaque nouvelle demande de jeton. Le transport est WebRTC via LiveKit ; il peut être déplacé sur un serveur auto-hébergé. Les coûts/quota du service vocal sont distincts de l'hébergement web. Avant de l'ouvrir à une communauté, tester deux appareils, les permissions micro/caméra, la reconnexion et les réseaux nécessitant TURN. La révocation d'un membre empêche les nouvelles demandes de jeton ; la déconnexion immédiate des médias déjà connectés n'est pas encore implémentée.
 
-## Architecture et migration future
-- `lib/application.js` : API et contrôles d'accès. Chaque opération du chat exige une session validée côté serveur ; l'auteur d'un message est calculé par le serveur.
-- `lib/auth.js` : intégration Better Auth, cookies HttpOnly et limitation des tentatives en base.
-- `lib/database.js` : pool PostgreSQL avec cinq connexions maximum par instance.
-- `public/backend.js` : contrat navigateur `request()` / `subscribe()`, sans jeton d'identité dans le stockage JavaScript.
-- `db/migrations/001_core.sql` : données applicatives et UUID de profils indépendants du fournisseur d'identité.
-- `002_better_auth.sql` : schéma généré avec Better Auth 1.7.12, y compris les compteurs de limitation en base.
-- `003_identity.sql` : création atomique d'un profil et de son lien avec le compte lors de l'inscription.
+## Déployer
+Sur Vercel : Node 24, preset Other, commande d'installation `npm ci`, commande de build `npm run build`, sortie `public`. `vercel.json` contient ces réglages et la réécriture de toutes les routes `/api/*` vers `api/handler.js`. Garder le projet existant `onde-chat`.
 
-Pour changer d'hébergeur PostgreSQL : sauvegarder la base complète (y compris les tables Better Auth et l'historique des migrations), la restaurer et vérifier les séquences, relations et comptes sur la destination, puis changer `DATABASE_URL`. Conserver le secret et l'origine si les sessions doivent survivre. Tester une restauration avant de supprimer l'ancienne base. Automatiser les sauvegardes avec les outils du fournisseur ou `pg_dump` et les conserver séparément.
+Appliquer les migrations sur la base cible avant le déploiement, renseigner les variables pour Production puis livrer le commit. Ne pas relier les previews à la base de production. Ouvrir l'URL stable https://onde-chat.vercel.app ; les URL historiques restent figées sur leur ancien code.
 
-Pour remplacer Better Auth, adapter `lib/auth.js`, le déclencheur et les liens d'identités sans modifier les UUID des profils ni les auteurs des messages. La migration des mots de passe exige un format compatible ; sinon, prévoir une réinitialisation.
+Le Dockerfile construit les ressources du navigateur, puis installe les dépendances de production dans une seconde image. Injecter les mêmes variables et placer le serveur derrière HTTPS.
 
-`db/legacy/002_supabase.sql` est conservé pour référence et n'est jamais exécuté par le nouveau runner. L'ancienne base SQLite `data/` reste ignorée par Git et n'est pas importée. Cette nouvelle chaîne de migrations vise une base vide : ne pas l'appliquer directement à un ancien schéma Supabase.
+## Architecture et portabilité
+- `lib/application.js` : session, origine des mutations, limites des requêtes et erreurs JSON.
+- `lib/features/community.js` : appartenance aux espaces, rôles et opérations du chat. Les UUID des profils restent indépendants de Better Auth.
+- `lib/auth.js` : Better Auth, mots de passe hachés, cookies HttpOnly et limite de tentatives stockée dans PostgreSQL.
+- `public/app.js`, `public/backend.js` : interface et adaptateur HTTP de même origine, sans jeton de session dans le stockage JavaScript.
+- `client/calls.js` : client LiveKit chargé uniquement lors d'un appel ; `client/motion.js` : moteur Lottie léger, servi localement.
+- `public/assets/orbit.json` : animation vectorielle originale, respect de `prefers-reduced-motion`. Les transitions des messages ne se rejouent pas à chaque actualisation.
+- `db/migrations` : schéma versionné. `db/legacy` est documentaire et n'est pas appliqué.
 
-## Tests et limites
-`npm test` exécute les vraies migrations PostgreSQL dans PGlite, le moteur PostgreSQL embarqué, et Better Auth : inscription, cookie HttpOnly, connexion, identité stable, messages entre deux comptes, prévention de l'usurpation de l'auteur, refus des origines étrangères et déconnexion. Le client PostgreSQL des tests remplace seulement le transport ; aucune base distante n'est nécessaire. Les tests ne vérifient pas TLS, le réseau Neon, le routage Vercel ou le rendu dans un navigateur.
+Pour changer de fournisseur PostgreSQL : exporter et restaurer la base complète avec tables d'authentification, séquences et historique de migrations ; vérifier les comptes, permissions et fichiers avant de changer `DATABASE_URL`. Conserver le secret et l'origine si les sessions doivent survivre. Automatiser des sauvegardes indépendantes du fournisseur et tester leur restauration. Pour changer d'authentification, conserver les UUID des profils et adapter `identity_links` ; une réinitialisation des mots de passe peut être nécessaire.
 
-Une seule communauté : tous les inscrits voient tous les salons. Pas encore d'invitations, modération, fichiers, messages privés ou audio/vidéo. Derniers 150 messages affichés et jusqu'à 200 profils. Les adresses e-mail ne sont pas vérifiées et la récupération des mots de passe n'est pas configurée : réserver cette version à un test fermé et ajouter un fournisseur d'e-mail avant une ouverture plus large. Les offres gratuites ne garantissent pas une disponibilité permanente et peuvent mettre une base inactive en veille.
+## Vérification
+```sh
+npm test
+npm run test:browser
+```
 
-## Validation du parcours de connexion
+Les tests Node utilisent de vraies migrations PostgreSQL dans PGlite et Better Auth : inscription, sessions, accès anonymes, espaces privés, invitations, rôles et exclusions, messages privés, réponses, réactions, modifications, épinglage, recherche, fichiers et autorisations, profils, présence, progression et génération de jetons vocaux. Les tests des appels vérifient les autorisations et les claims des jetons ; aucun serveur média LiveKit n'est lancé.
 
-La validation HTTP en production a passé 27 contrôles : deux inscriptions, cookies Secure/HttpOnly, erreurs de connexion, deux sessions indépendantes, salons, messages croisés, auteur non falsifiable, origine étrangère refusée, déconnexion et reconnexion avec identité stable. Les comptes QA_92604931A / QA_92604931B et le salon qa-92604931 ont été créés pour cette validation ; aucun mot de passe ou cookie n'est conservé dans le dépôt.
+Les sept parcours Chromium vérifient les échanges entre deux sessions, les erreurs de réseau, la conservation des brouillons et la prévention des doubles envois, le mobile, la navigation, les modales, invitations, messages enrichis, téléchargement, recherche, messages privés, progression et le respect de la réduction des mouvements. Le serveur de test et sa base sont isolés de la production. Installer Chromium avec `npx playwright install chromium`, ou fournir `PLAYWRIGHT_CHROMIUM_PATH`. Les captures sont dans `test-results/` (ignoré par Git).
 
-`npm test` inclut aussi des tests DOM avec JSDOM : mot de passe incorrect, panne pendant le chargement après connexion, succès, expiration de session, déconnexion et affichage inerte du HTML des messages. Ce test DOM ne remplace pas une inspection visuelle dans un vrai navigateur.
+GitHub Actions exécute ces tests à chaque modification. `scripts/smoke-production.py` est un ancien test explicitement manuel : il crée deux comptes et un salon QA et ne doit pas être lancé automatiquement ou en boucle.
 
-`scripts/smoke-production.py` peut être exécuté explicitement pour revalider le site (`ONDE_TEST_URL` configurable) ; chaque exécution crée deux nouveaux comptes QA et un salon QA, sans suppression automatique. Ne pas le lancer en boucle. Utiliser https://onde-chat.vercel.app : les anciennes URL de déploiement sont immuables et peuvent conserver d'anciennes erreurs.
+## Limites actuelles
+Actualisation des messages et de la présence toutes les cinq secondes dans les onglets visibles. Les notifications sont une boîte de messages non lus dans l'app, sans push système. La vue affiche au plus 150 messages récents, la recherche interroge l'historique du salon ; l'API accepte `before` mais la navigation vers les pages anciennes n'est pas encore exposée dans l'interface. Les listes de membres sont limitées à 200.
 
-## Tests complets de l’application
+Pas encore de vérification d'e-mail ou récupération des mots de passe, de bannissement durable, de blocage personnel, de threads dédiés, de gestion avancée des permissions par salon, de protection anti-spam du chat ni de mécanisme de recours de modération. Les rôles existants sont prédéfinis. Les offres gratuites ont des quotas et ne constituent pas une garantie de disponibilité. Cette version doit rester un test fermé avant une ouverture plus large.
 
-`npm run test:browser` lance Chromium et un serveur Node isolé avec la vraie authentification Better Auth et PostgreSQL embarqué PGlite. Aucun compte ni message n’est ajouté à la base de production par ces tests. Installer Chromium avec `npx playwright install chromium` si aucun navigateur système n’est disponible ; `PLAYWRIGHT_CHROMIUM_PATH` permet de choisir son exécutable.
-
-Les cinq parcours couvrent : deux utilisateurs indépendants et échanges actualisés, salons, messages multilignes, affichage sûr du HTML, restauration de session après rechargement, déconnexion et erreurs de connexion ; écran mobile, messages longs et absence de débordement horizontal ; panne réseau avec conservation du brouillon ; brouillons par salon, prévention des doubles envois et changement de salon pendant un envoi ; fermeture du menu mobile au clavier et par clic extérieur. Des captures ordinateur/mobile sont produites dans `test-results/` et ne sont pas publiées.
-
-Les tests PostgreSQL vérifient également les 150 derniers messages dans l’ordre, les requêtes JSON invalides ou trop grandes, les noms de salons en double, les pseudos déjà utilisés, les salons inexistants, les méthodes non prises en charge et l’absence d’adresses e-mail dans la liste des membres. GitHub Actions exécute les tests Node et Chromium à chaque modification. Ces contrôles couvrent les fonctions existantes, sans garantir tous les appareils, moteurs de navigateur ou volumes de charge.
+## Direction visuelle
+L’interface adopte un univers de QG communautaire : blasons, navigation en emblèmes, rang et XP visibles, carnet de missions, insignes débloqués et célébrations ponctuelles. Les animations Lottie et CSS respectent la réduction des mouvements ; la zone des messages garde une typographie calme et lisible. La progression est calculée sur les actions réelles, sans statistiques fictives.
