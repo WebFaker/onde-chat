@@ -3,3 +3,8 @@ data
 node_modules
 .env
 *.sqlite*
+.env.*
+!.env.example
+test-results
+playwright-report
+__pycache__

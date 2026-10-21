@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {JSDOM} from 'jsdom';
 import {NodeBackend} from '../public/backend.js';
 const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
-const source=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace("import {NodeBackend} from './backend.js';",'');
+const source=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace("import {NodeBackend} from './backend.js';",'').replace("import {animateEmblems} from './motion.js';",'');
 const flush=()=>new Promise(resolve=>setTimeout(resolve,20));
 function setup(){
  const dom=new JSDOM(html,{url:'https://onde.example',runScripts:'outside-only'}),w=dom.window;
@@ -16,13 +16,18 @@ function setup(){
    if(path==='logout'){logged=false;return {};}
    if(!logged||expire)throw Object.assign(Error('Connectez-vous pour continuer.'),{status:401});
    if(path==='me')return {id:'a',name:'Alice'};
-   if(path==='channels'){if(failChannels)throw Error('Service temporairement indisponible.');return [{id:1,name:'général'},{id:2,name:'projets'}];}
+   if(path==='servers')return [{id:1,name:'La communauté',role:'member'}];
+   if(path==='dms')return [];
+   if(path==='capabilities')return {calls:false};
+   if(path==='progress')return {level:1,xp:20};
+   if(path==='presence'||path==='read')return {};
+   if(path.startsWith('channels')){if(failChannels)throw Error('Service temporairement indisponible.');return [{id:1,name:'général',kind:'text'},{id:2,name:'projets',kind:'text'}];}
    if(path.startsWith('messages'))return [{id:1,user_id:'a',name:'Alice',created:new Date().toISOString(),body:'<script>window.attacked=true</script>'}];
-   if(path==='members')return [{id:'a',name:'Alice'}];
+   if(path.startsWith('members'))return [{id:'a',name:'Alice'}];
   }
   subscribe(update,error){poll=async()=>{try{await update();}catch(e){error(e);}};return {close(){}};}
  }
- w.NodeBackend=Backend;w.eval(source);
+ w.NodeBackend=Backend;w.animateEmblems=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};w.eval(source);
  return {w,dom,requests,setFail:v=>{failChannels=v;},setExpired:v=>{expire=v;},poll:()=>poll()};
 }
 test('formulaire : mauvais mot de passe, panne après login, succès, texte sûr, expiration',async()=>{
