@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test test.mjs",
+    "test": "node --test test.mjs tests/*.test.mjs",
     "db:migrate": "node scripts/migrate.js"
   },
   "engines": {
@@ -16,6 +16,7 @@
     "pg": "8.23.1"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.11"
+    "@electric-sql/pglite": "0.5.11",
+    "jsdom": "30.1.3"
   }
 }

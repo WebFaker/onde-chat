@@ -53,3 +53,11 @@ Pour remplacer Better Auth, adapter `lib/auth.js`, le déclencheur et les liens 
 `npm test` exécute les vraies migrations PostgreSQL dans PGlite, le moteur PostgreSQL embarqué, et Better Auth : inscription, cookie HttpOnly, connexion, identité stable, messages entre deux comptes, prévention de l'usurpation de l'auteur, refus des origines étrangères et déconnexion. Le client PostgreSQL des tests remplace seulement le transport ; aucune base distante n'est nécessaire. Les tests ne vérifient pas TLS, le réseau Neon, le routage Vercel ou le rendu dans un navigateur.
 
 Une seule communauté : tous les inscrits voient tous les salons. Pas encore d'invitations, modération, fichiers, messages privés ou audio/vidéo. Derniers 150 messages affichés et jusqu'à 200 profils. Les adresses e-mail ne sont pas vérifiées et la récupération des mots de passe n'est pas configurée : réserver cette version à un test fermé et ajouter un fournisseur d'e-mail avant une ouverture plus large. Les offres gratuites ne garantissent pas une disponibilité permanente et peuvent mettre une base inactive en veille.
+
+## Validation du parcours de connexion
+
+La validation HTTP en production a passé 27 contrôles : deux inscriptions, cookies Secure/HttpOnly, erreurs de connexion, deux sessions indépendantes, salons, messages croisés, auteur non falsifiable, origine étrangère refusée, déconnexion et reconnexion avec identité stable. Les comptes QA_92604931A / QA_92604931B et le salon qa-92604931 ont été créés pour cette validation ; aucun mot de passe ou cookie n'est conservé dans le dépôt.
+
+`npm test` inclut aussi des tests DOM avec JSDOM : mot de passe incorrect, panne pendant le chargement après connexion, succès, expiration de session, déconnexion et affichage inerte du HTML des messages. Ce test DOM ne remplace pas une inspection visuelle dans un vrai navigateur.
+
+`scripts/smoke-production.py` peut être exécuté explicitement pour revalider le site (`ONDE_TEST_URL` configurable) ; chaque exécution crée deux nouveaux comptes QA et un salon QA, sans suppression automatique. Ne pas le lancer en boucle. Utiliser https://onde-chat.vercel.app : les anciennes URL de déploiement sont immuables et peuvent conserver d'anciennes erreurs.

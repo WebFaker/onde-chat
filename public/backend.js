@@ -2,7 +2,7 @@
 export class NodeBackend {
  async fetch(path,{method='GET',body}={}){
   const r=await fetch('/api/'+path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json'},...(body?{body}:{})});
-  const raw=await r.text();let data;try{data=JSON.parse(raw);}catch{throw Error('Le serveur a renvoyé une réponse inattendue (HTTP '+r.status+'). Réessaie dans quelques instants.');}if(!r.ok)throw Error(data.error?.message||data.error||data.message||'La requête a échoué.');return data;
+  const raw=await r.text();let data;try{data=JSON.parse(raw);}catch{throw Error('Le serveur a renvoyé une réponse inattendue (HTTP '+r.status+'). Réessaie dans quelques instants.');}if(!r.ok){const messages={INVALID_EMAIL_OR_PASSWORD:'Adresse e-mail ou mot de passe incorrect.',USER_ALREADY_EXISTS:'Un compte utilise déjà cette adresse e-mail.',INVALID_EMAIL:'Adresse e-mail invalide.'};const error=Error(messages[data.code]||data.error?.message||data.error||data.message||'La requête a échoué.');error.status=r.status;throw error;}return data;
  }
  async request(path,options={}){
   if(path==='register'||path==='login'){
