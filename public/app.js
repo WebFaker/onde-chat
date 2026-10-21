@@ -1,0 +1,23 @@
+import {SupabaseBackend} from './backend.js';
+let backend;
+const $=id=>document.getElementById(id);let user,channel=1,channels=[],register=false,events,last='';
+async function api(path,options={}){if(!backend)throw Error('Configuration indisponible.');return backend.request(path,options);}
+const post=(path,data)=>api(path,{method:'POST',body:JSON.stringify(data)});
+function node(tag,text,cls){const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;}
+function avatar(name){return node('div',name.slice(0,2).toUpperCase(),'avatar');}
+$('auth-toggle').onclick=()=>{register=!register;$('name').parentElement.hidden=!register;$('name').required=register;$('auth-submit').textContent=register?'Créer mon compte →':'Se connecter →';$('auth-toggle').textContent=register?'Déjà un compte ? Se connecter':'Première visite ? Créer un compte';$('password').autocomplete=register?'new-password':'current-password';$('auth-error').textContent='';};
+$('name').parentElement.hidden=true;$('name').required=false;
+$('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-submit').disabled=true;try{user=await post(register?'register':'login',{name:$('name').value,email:$('email').value,password:$('password').value});$('password').value='';if(user.confirmationRequired){$('auth-error').textContent='Confirme ton adresse via le lien reçu par e-mail, puis connecte-toi.';return;}await enter();}catch(e){$('auth-error').textContent=e.message;}finally{$('auth-submit').disabled=false;}};
+async function enter(){$('auth').hidden=true;$('app').hidden=false;$('my-name').textContent=user.name;$('my-avatar').textContent=user.name.slice(0,2).toUpperCase();await refresh();events?.close();events=backend.subscribe(()=>refresh(),showError);}
+function showError(e){$('error').textContent=e.message;}
+async function refresh(){channels=await api('channels');$('channels').replaceChildren();for(const c of channels){const b=node('button','');b.append(node('span','#'),document.createTextNode(c.name));b.classList.toggle('selected',c.id===channel);b.onclick=()=>{channel=c.id;last='';$('sidebar')?.classList.remove('show');document.querySelector('.sidebar').classList.remove('show');refresh().catch(showError);};$('channels').append(b);}
+const name=channels.find(c=>c.id===channel)?.name||'général';$('channel-title').textContent=name;$('message').placeholder='Écrire dans #'+name;
+const data=await api('messages?channel='+channel),signature=channel+JSON.stringify(data);if(last!==signature){const area=$('messages'),nearBottom=area.scrollHeight-area.scrollTop-area.clientHeight<100;area.replaceChildren();const intro=node('div','','welcome');intro.append(node('div','#','welcome-icon'),node('h2','Bienvenue dans #'+name),node('p','Voici le début du salon '+name+'. Un espace à vous pour discuter, partager vos idées et garder le lien.'),node('span','LE DÉBUT D’UNE CONVERSATION','pill'));area.append(intro);for(const m of data){const row=node('article','','msg'+(m.user_id===user.id?' mine':''));const content=node('div','','msg-content');content.append(node('b',m.name),node('time',new Date(m.created).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})),node('p',m.body));row.append(avatar(m.name),content);area.append(row);}if(nearBottom||!last)area.scrollTop=area.scrollHeight;last=signature;}
+const members=await api('members');$('member-count').textContent=members.length;$('member-list').replaceChildren();for(const m of members){const row=node('div','','member');row.append(avatar(m.name),node('span',m.name));$('member-list').append(row);}$('error').textContent='';}
+$('composer').onsubmit=async e=>{e.preventDefault();const value=$('message').value;if(!value.trim())return;try{await post('messages?channel='+channel,{text:value});$('message').value='';last='';await refresh();}catch(e){showError(e);}};
+$('message').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('composer').requestSubmit();}};
+$('add-channel').onclick=async()=>{const name=prompt('Nom du nouveau salon (sans espaces)');if(!name)return;try{await post('channels',{name});await refresh();channel=channels.find(c=>c.name===name).id;last='';await refresh();}catch(e){showError(e);}};
+$('logout').onclick=async()=>{try{await post('logout',{});events?.close();$('app').hidden=true;$('auth').hidden=false;user=null;}catch(e){showError(e);}};
+$('mobile-menu').onclick=()=>document.querySelector('.sidebar').classList.toggle('show');
+async function boot(){try{const r=await fetch('/api/config');backend=new SupabaseBackend(await r.json());}catch(e){$('auth-error').textContent=e.message;return;}try{user=await api('me');await enter();}catch{}}
+boot();
