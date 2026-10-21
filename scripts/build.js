@@ -1,2 +1,2 @@
 import {build} from 'esbuild';
-await build({entryPoints:['client/motion.js','client/calls.js'],outdir:'public',bundle:true,format:'esm',minify:true,target:'es2022',legalComments:'none'});
+await build({entryPoints:['client/calls.js'],outdir:'public',bundle:true,format:'esm',minify:true,target:'es2022',legalComments:'none'});

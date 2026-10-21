@@ -1,5 +1,5 @@
 # Onde
-Une application communautaire française, avec interface sombre responsive, animations Lottie locales, API Node.js portable, PostgreSQL et authentification Better Auth. Frontend et backend ne dépendent pas des API de données d'un hébergeur.
+Une application communautaire française, avec interface sombre responsive inspirée des dispositions classiques de Discord, API Node.js portable, PostgreSQL et authentification Better Auth. Frontend et backend ne dépendent pas des API de données d'un hébergeur.
 
 ## Fonctions disponibles
 - Espaces communautaires privés, invitations de sept jours, rôles propriétaire/administration/modération/membre, exclusion et journal de modération.
@@ -7,7 +7,7 @@ Une application communautaire française, avec interface sombre responsive, anim
 - Salons textuels et vocaux, messages privés entre membres partageant un espace.
 - Réponses, six réactions, modification de ses messages, suppression par l'auteur ou la modération, épinglage par la modération, recherche dans le salon et indicateurs de messages non lus.
 - Pièces jointes téléchargées avec autorisation : PNG, JPEG, WebP, GIF, PDF et texte. Limite 1 Mo par fichier et 20 Mo par utilisateur. Stockage PostgreSQL pour ce prototype ; prévoir un stockage objet pour davantage de volume.
-- Présentation de profil, présence récemment active, progression et quatre badges personnels. Les messages ne rapportent des points que sur les dix premiers envois ; cette progression n'est pas un classement public.
+- Présentation de profil et présence récemment active. Les anciennes données de progression sont conservées mais ne sont plus affichées dans l’interface.
 - Appels LiveKit : jetons autorisés par salon, micro, caméra, partage d'écran et déconnexion. **Un service LiveKit doit être connecté pour que les appels fonctionnent.** Les tests ne constituent pas une validation réelle de deux appels audio/vidéo sur Internet.
 
 ## Installer et lancer
@@ -53,8 +53,8 @@ Le Dockerfile construit les ressources du navigateur, puis installe les dépenda
 - `lib/features/community.js` : appartenance aux espaces, rôles et opérations du chat. Les UUID des profils restent indépendants de Better Auth.
 - `lib/auth.js` : Better Auth, mots de passe hachés, cookies HttpOnly et limite de tentatives stockée dans PostgreSQL.
 - `public/app.js`, `public/backend.js` : interface et adaptateur HTTP de même origine, sans jeton de session dans le stockage JavaScript.
-- `client/calls.js` : client LiveKit chargé uniquement lors d'un appel ; `client/motion.js` : moteur Lottie léger, servi localement.
-- `public/assets/orbit.json` : animation vectorielle originale, respect de `prefers-reduced-motion`. Les transitions des messages ne se rejouent pas à chaque actualisation.
+- `client/calls.js` : client LiveKit chargé uniquement lors d’un appel. `client/motion.js` est conservé mais n’est plus construit ni chargé par l’interface actuelle.
+- Les ressources vectorielles de l’ancien design sont conservées mais ne sont plus chargées. Les préférences de réduction des mouvements restent respectées.
 - `db/migrations` : schéma versionné. `db/legacy` est documentaire et n'est pas appliqué.
 
 Pour changer de fournisseur PostgreSQL : exporter et restaurer la base complète avec tables d'authentification, séquences et historique de migrations ; vérifier les comptes, permissions et fichiers avant de changer `DATABASE_URL`. Conserver le secret et l'origine si les sessions doivent survivre. Automatiser des sauvegardes indépendantes du fournisseur et tester leur restauration. Pour changer d'authentification, conserver les UUID des profils et adapter `identity_links` ; une réinitialisation des mots de passe peut être nécessaire.
@@ -67,7 +67,7 @@ npm run test:browser
 
 Les tests Node utilisent de vraies migrations PostgreSQL dans PGlite et Better Auth : inscription, sessions, accès anonymes, espaces privés, invitations, rôles et exclusions, messages privés, réponses, réactions, modifications, épinglage, recherche, fichiers et autorisations, profils, présence, progression et génération de jetons vocaux. Les tests des appels vérifient les autorisations et les claims des jetons ; aucun serveur média LiveKit n'est lancé.
 
-Les sept parcours Chromium vérifient les échanges entre deux sessions, les erreurs de réseau, la conservation des brouillons et la prévention des doubles envois, le mobile, la navigation, les modales, invitations, messages enrichis, téléchargement, recherche, messages privés, progression et le respect de la réduction des mouvements. Le serveur de test et sa base sont isolés de la production. Installer Chromium avec `npx playwright install chromium`, ou fournir `PLAYWRIGHT_CHROMIUM_PATH`. Les captures sont dans `test-results/` (ignoré par Git).
+Les sept parcours Chromium vérifient les échanges entre deux sessions, les erreurs de réseau, la conservation des brouillons et la prévention des doubles envois, le mobile, la navigation, les modales, invitations, messages enrichis, téléchargement, recherche, messages privés, profils et absence des anciennes décorations. Le serveur de test et sa base sont isolés de la production. Installer Chromium avec `npx playwright install chromium`, ou fournir `PLAYWRIGHT_CHROMIUM_PATH`. Les captures sont dans `test-results/` (ignoré par Git).
 
 GitHub Actions exécute ces tests à chaque modification. `scripts/smoke-production.py` est un ancien test explicitement manuel : il crée deux comptes et un salon QA et ne doit pas être lancé automatiquement ou en boucle.
 
@@ -76,5 +76,5 @@ Actualisation des messages et de la présence toutes les cinq secondes dans les 
 
 Pas encore de vérification d'e-mail ou récupération des mots de passe, de bannissement durable, de blocage personnel, de threads dédiés, de gestion avancée des permissions par salon, de protection anti-spam du chat ni de mécanisme de recours de modération. Les rôles existants sont prédéfinis. Les offres gratuites ont des quotas et ne constituent pas une garantie de disponibilité. Cette version doit rester un test fermé avant une ouverture plus large.
 
-## Direction visuelle
-L’interface adopte un univers de QG communautaire : blasons, navigation en emblèmes, rang et XP visibles, carnet de missions, insignes débloqués et célébrations ponctuelles. Les animations Lottie et CSS respectent la réduction des mouvements ; la zone des messages garde une typographie calme et lisible. La progression est calculée sur les actions réelles, sans statistiques fictives.
+## Présentation actuelle
+À la demande du propriétaire, l’interface revient à une présentation proche de Discord : rail de serveurs, liste de salons, messages et membres, surfaces gris foncé et accent bleu-violet. Les éléments de progression, les missions et les Lottie ne sont plus affichés dans le chat ; les données de progression restent conservées. Aucun changement de base n’est nécessaire pour cette présentation.
