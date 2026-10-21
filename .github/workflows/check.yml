@@ -13,3 +13,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/handler.js
+
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser

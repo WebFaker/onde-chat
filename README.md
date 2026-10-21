@@ -61,3 +61,11 @@ La validation HTTP en production a passé 27 contrôles : deux inscriptions, coo
 `npm test` inclut aussi des tests DOM avec JSDOM : mot de passe incorrect, panne pendant le chargement après connexion, succès, expiration de session, déconnexion et affichage inerte du HTML des messages. Ce test DOM ne remplace pas une inspection visuelle dans un vrai navigateur.
 
 `scripts/smoke-production.py` peut être exécuté explicitement pour revalider le site (`ONDE_TEST_URL` configurable) ; chaque exécution crée deux nouveaux comptes QA et un salon QA, sans suppression automatique. Ne pas le lancer en boucle. Utiliser https://onde-chat.vercel.app : les anciennes URL de déploiement sont immuables et peuvent conserver d'anciennes erreurs.
+
+## Tests complets de l’application
+
+`npm run test:browser` lance Chromium et un serveur Node isolé avec la vraie authentification Better Auth et PostgreSQL embarqué PGlite. Aucun compte ni message n’est ajouté à la base de production par ces tests. Installer Chromium avec `npx playwright install chromium` si aucun navigateur système n’est disponible ; `PLAYWRIGHT_CHROMIUM_PATH` permet de choisir son exécutable.
+
+Les cinq parcours couvrent : deux utilisateurs indépendants et échanges actualisés, salons, messages multilignes, affichage sûr du HTML, restauration de session après rechargement, déconnexion et erreurs de connexion ; écran mobile, messages longs et absence de débordement horizontal ; panne réseau avec conservation du brouillon ; brouillons par salon, prévention des doubles envois et changement de salon pendant un envoi ; fermeture du menu mobile au clavier et par clic extérieur. Des captures ordinateur/mobile sont produites dans `test-results/` et ne sont pas publiées.
+
+Les tests PostgreSQL vérifient également les 150 derniers messages dans l’ordre, les requêtes JSON invalides ou trop grandes, les noms de salons en double, les pseudos déjà utilisés, les salons inexistants, les méthodes non prises en charge et l’absence d’adresses e-mail dans la liste des membres. GitHub Actions exécute les tests Node et Chromium à chaque modification. Ces contrôles couvrent les fonctions existantes, sans garantir tous les appareils, moteurs de navigateur ou volumes de charge.

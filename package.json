@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test test.mjs tests/*.test.mjs",
-    "db:migrate": "node scripts/migrate.js"
+    "db:migrate": "node scripts/migrate.js",
+    "test:browser": "playwright test"
   },
   "engines": {
     "node": ">=24"
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.11",
+    "@playwright/test": "1.64.1",
     "jsdom": "30.1.3"
   }
 }
