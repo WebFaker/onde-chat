@@ -10,5 +10,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - run: npm ci
       - run: npm test
-      - run: node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/config.js
+      - run: node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/\[...path\].js

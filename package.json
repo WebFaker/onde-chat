@@ -1,1 +1,21 @@
-{"name":"onde-chat","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test test.mjs"},"engines":{"node":">=24"}}
+{
+  "name": "onde-chat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test.mjs",
+    "db:migrate": "node scripts/migrate.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "better-auth": "1.7.12",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.11"
+  }
+}
