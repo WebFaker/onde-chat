@@ -56,3 +56,20 @@ test('adaptateur : erreurs JSON et page non JSON lisibles',async()=>{
  globalThis.fetch=async()=>new Response(JSON.stringify({code:'INVALID_EMAIL_OR_PASSWORD',message:'Invalid email or password'}),{status:401});await assert.rejects(()=>b.request('login',{body:JSON.stringify({email:'x@y.z',password:'wrong'})}),/mot de passe incorrect/);
  }finally{globalThis.fetch=original;}
 });
+test('messages enrichis : mise en forme, spoilers accessibles et liens sûrs',()=>{
+ const t=setup(),w=t.w;try{
+ const root=w.document.createElement('div');w.document.body.append(root);w.richRoot=root;
+ w.eval('richRoot.append(richText("**gras** *italique* __souligné__ ~~barré~~ `code` ||secret|| https://example.com <img src=x onerror=alert(1)> javascript:alert(1)"))');
+ assert.equal(root.querySelector('strong').textContent,'gras');assert.equal(root.querySelector('em').textContent,'italique');assert.equal(root.querySelector('u').textContent,'souligné');assert.equal(root.querySelector('s').textContent,'barré');assert.equal(root.querySelector('code').textContent,'code');
+ const spoiler=root.querySelector('.spoiler');assert.equal(spoiler.getAttribute('aria-expanded'),'false');spoiler.click();assert.equal(spoiler.getAttribute('aria-expanded'),'true');spoiler.click();assert.equal(spoiler.getAttribute('aria-expanded'),'false');
+ assert.equal(root.querySelectorAll('a').length,1);assert.equal(root.querySelector('a').rel,'noopener noreferrer');assert.equal(root.querySelector('img'),null);
+ }finally{t.dom.window.close();}
+});
+test('apparence : validation, sauvegarde et restauration sur cet appareil',async()=>{
+ const t=setup(),w=t.w,$=id=>w.document.getElementById(id);try{
+ await flush();w.eval('appearanceSettings()');$('modal-theme').value='light';$('modal-density').value='compact';$('modal-font').value='18';$('modal-motion').value='reduce';await w.document.querySelector('.modal-form').onsubmit({preventDefault(){}});
+ assert.equal(w.document.documentElement.dataset.theme,'light');assert.equal(w.document.documentElement.dataset.density,'compact');assert.equal(w.document.documentElement.style.getPropertyValue('--message-font'),'18px');assert.equal(JSON.parse(w.localStorage.getItem('onde-appearance')).motion,'reduce');
+ w.eval('applyAppearance({theme:"bad",font:"900"})');assert.equal(w.document.documentElement.dataset.theme,'classic');assert.equal(w.document.documentElement.style.getPropertyValue('--message-font'),'16px');
+ w.eval('applyAppearance(JSON.parse(localStorage.getItem("onde-appearance")))');assert.equal(w.document.documentElement.dataset.theme,'light');
+ }finally{t.dom.window.close();}
+});

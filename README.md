@@ -78,3 +78,9 @@ Pas encore de vérification d'e-mail ou récupération des mots de passe, de ban
 
 ## Présentation actuelle
 À la demande du propriétaire, l’interface revient à une présentation proche de Discord : rail de serveurs, liste de salons, messages et membres, surfaces gris foncé et accent bleu-violet. Les éléments de progression, les missions et les Lottie ne sont plus affichés dans le chat ; les données de progression restent conservées. Aucun changement de base n’est nécessaire pour cette présentation.
+
+## Personnalisation et objectif Discord
+
+Les thèmes classique, minuit et clair, la densité, la taille du texte et la réduction des mouvements sont gratuits et conservés sur cet appareil (Profil → Apparence). Les messages acceptent une mise en forme légère et des spoilers, construits avec des nœuds DOM sans injection HTML.
+
+Voir [l’état des fonctions et les limites](docs/DISCORD-PARITY.md). Onde ne possède pas toutes les fonctions de Discord et ne vend actuellement aucun abonnement.
