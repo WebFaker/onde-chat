@@ -1,8 +1,8 @@
 # Onde V2 — résultat prêt pour revue
 
-Cette version n'est pas encore publiée en production. Le contrôle d'approbation automatique a refusé la mutation de la base primaire sans accord explicite pour cette migration précise.
+La migration a été autorisée explicitement par le propriétaire, puis appliquée en production. La livraison de l’interface est suivie par la pull request n°1.
 
-## Autorisation nécessaire
+## Périmètre autorisé
 Appliquer `db/migrations/004_communities.sql` à la base `onde` du projet Neon `wispy-water-70693306`, branche primaire `br-wispy-butterfly-b9iq8nm8`, puis publier ce code sur le projet Vercel existant `onde-chat`.
 
 La migration :
@@ -26,4 +26,4 @@ Les mutations et changements de contraintes sont permanents. Ils doivent être a
 Les appels réels nécessitent `LIVEKIT_URL`, `LIVEKIT_API_KEY` et `LIVEKIT_API_SECRET`. La génération de jetons et les droits sont testés ; le transport audio/vidéo et le partage d'écran avec un vrai service LiveKit ne sont pas encore validés. Aucun compte LiveKit n'a été créé et aucun service payant n'a été souscrit.
 
 ## Suite de livraison
-Après accord explicite : vérifier l'absence de nouvelles migrations concurrentes, appliquer la migration avec son entrée de journal et sa somme de contrôle, fusionner la pull request, suivre le déploiement Vercel et vérifier les routes en production. Garder la branche de test Neon tant que la livraison n'est pas validée. Ne pas fusionner avant l'application de la migration.
+La migration et son entrée de journal sont appliquées. Vérifier les tests du dernier commit, fusionner la pull request, suivre le déploiement Vercel et vérifier les routes en production. Garder la branche de test Neon tant que la livraison n'est pas validée. Ne pas fusionner avant l'application de la migration.

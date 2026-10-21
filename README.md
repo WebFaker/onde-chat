@@ -75,3 +75,6 @@ GitHub Actions exécute ces tests à chaque modification. `scripts/smoke-product
 Actualisation des messages et de la présence toutes les cinq secondes dans les onglets visibles. Les notifications sont une boîte de messages non lus dans l'app, sans push système. La vue affiche au plus 150 messages récents, la recherche interroge l'historique du salon ; l'API accepte `before` mais la navigation vers les pages anciennes n'est pas encore exposée dans l'interface. Les listes de membres sont limitées à 200.
 
 Pas encore de vérification d'e-mail ou récupération des mots de passe, de bannissement durable, de blocage personnel, de threads dédiés, de gestion avancée des permissions par salon, de protection anti-spam du chat ni de mécanisme de recours de modération. Les rôles existants sont prédéfinis. Les offres gratuites ont des quotas et ne constituent pas une garantie de disponibilité. Cette version doit rester un test fermé avant une ouverture plus large.
+
+## Direction visuelle
+L’interface adopte un univers de QG communautaire : blasons, navigation en emblèmes, rang et XP visibles, carnet de missions, insignes débloqués et célébrations ponctuelles. Les animations Lottie et CSS respectent la réduction des mouvements ; la zone des messages garde une typographie calme et lisible. La progression est calculée sur les actions réelles, sans statistiques fictives.

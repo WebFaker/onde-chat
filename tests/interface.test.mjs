@@ -19,7 +19,7 @@ function setup(){
    if(path==='servers')return [{id:1,name:'La communauté',role:'member'}];
    if(path==='dms')return [];
    if(path==='capabilities')return {calls:false};
-   if(path==='progress')return {level:1,xp:20};
+   if(path==='progress')return {level:1,xp:20,badges:[]};
    if(path==='presence'||path==='read')return {};
    if(path.startsWith('channels')){if(failChannels)throw Error('Service temporairement indisponible.');return [{id:1,name:'général',kind:'text'},{id:2,name:'projets',kind:'text'}];}
    if(path.startsWith('messages'))return [{id:1,user_id:'a',name:'Alice',created:new Date().toISOString(),body:'<script>window.attacked=true</script>'}];
