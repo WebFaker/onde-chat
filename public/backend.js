@@ -2,7 +2,7 @@
 export class NodeBackend {
  async fetch(path,{method='GET',body}={}){
   const r=await fetch('/api/'+path,{method,credentials:'same-origin',headers:{'Content-Type':'application/json'},...(body?{body}:{})});
-  const data=await r.json();if(!r.ok)throw Error(data.error?.message||data.error||data.message||'La requête a échoué.');return data;
+  const raw=await r.text();let data;try{data=JSON.parse(raw);}catch{throw Error('Le serveur a renvoyé une réponse inattendue (HTTP '+r.status+'). Réessaie dans quelques instants.');}if(!r.ok)throw Error(data.error?.message||data.error||data.message||'La requête a échoué.');return data;
  }
  async request(path,options={}){
   if(path==='register'||path==='login'){

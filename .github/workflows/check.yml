@@ -12,4 +12,4 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm test
-      - run: node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/\[...path\].js
+      - run: node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/handler.js

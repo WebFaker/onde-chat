@@ -25,7 +25,7 @@ npm start
 Lancer les migrations comme étape de livraison, jamais à chaque requête. Le script journalise les versions et leurs sommes de contrôle, utilise un verrou PostgreSQL et une transaction par migration. Les migrations appliquées sont immuables : ajouter un nouveau fichier pour toute évolution. L'amorçage des quatre salons est rejouable.
 
 ## Déploiement Vercel
-Le projet peut être livré directement par l'API Vercel ou relié à GitHub. Preset **Other**, sortie `public`, aucune commande de build. L'installation doit exécuter `npm ci` (ne pas configurer une commande d'installation vide). Le fichier `api/[...path].js` monte exactement la même API que le serveur Node local. Utiliser Node 24.
+Le projet peut être livré directement par l'API Vercel ou relié à GitHub. Preset **Other**, sortie `public`, aucune commande de build. L'installation doit exécuter `npm ci` (ne pas configurer une commande d'installation vide). Le fichier `api/handler.js` monte exactement la même API que le serveur Node local. Utiliser Node 24.
 
 Configurer les trois variables côté serveur, puis exécuter `npm run db:migrate` sur la base cible avant le déploiement. Ne pas exposer `DATABASE_URL` ou `BETTER_AUTH_SECRET` dans le frontend. `BETTER_AUTH_URL` doit correspondre à l'URL stable de production en HTTPS. Ne pas connecter les previews à la base de production : utiliser une base dédiée et l'origine exacte de chaque environnement.
 
