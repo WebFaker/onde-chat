@@ -37,3 +37,8 @@ test('diagnostic LiveKit : disponibilité et erreurs sans divulguer les clés',a
  try{assert.equal((await checkCallService()).configured,false);process.env.LIVEKIT_URL='wss://test.invalid';process.env.LIVEKIT_API_KEY='private-test-key';process.env.LIVEKIT_API_SECRET='private-test-secret';assert.equal((await checkCallService(async()=>{})).reachable,true);const failure=await checkCallService(async()=>{throw Error('private-test-secret');});assert.equal(failure.reachable,false);assert.ok(!JSON.stringify(failure).includes('private-test-secret'));}
  finally{for(const [key,value] of Object.entries(previous)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
 });
+test('sonnerie synthétique : blocage audio, activation, silence et arrêt',async()=>{
+ const {createRingtone}=await import('../public/ringtone.js');let blocked=0,started=0,stopped=0;
+ class Context{state='suspended';currentTime=0;destination={};async resume(){this.state='running';}createGain(){return {gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};}createOscillator(){return {frequency:{value:0},connect(){},start(){started++;},stop(){stopped++;}};}}
+ const ringtone=createRingtone({AudioContextClass:Context,onBlocked:()=>blocked++});try{ringtone.start();assert.equal(started,0);assert.equal(blocked,1);assert.equal(await ringtone.enable(),true);assert.equal(started,4);ringtone.setMuted(true);assert.ok(stopped>=4);ringtone.setMuted(false);assert.equal(started,8);ringtone.stop();const before=started;ringtone.setMuted(false);assert.equal(started,before);}finally{ringtone.stop();}
+});

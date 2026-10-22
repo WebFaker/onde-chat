@@ -5,7 +5,7 @@ import {getApplication} from './lib/runtime.js';
 try{process.loadEnvFile();}catch(e){if(e.code!=='ENOENT')throw e;}
 const application=getApplication();
 const root=fileURLToPath(new URL('./public/',import.meta.url));
-const files={'/admin':'admin.html','/admin.html':'admin.html','/admin.js':'admin.js','/admin.css':'admin.css','/':'index.html','/app.js':'app.js','/backend.js':'backend.js','/style.css':'style.css','/motion.js':'motion.js','/calls.js':'calls.js','/assets/orbit.json':'assets/orbit.json'};
+const files={'/admin':'admin.html','/admin.html':'admin.html','/admin.js':'admin.js','/admin.css':'admin.css','/':'index.html','/app.js':'app.js','/backend.js':'backend.js','/ringtone.js':'ringtone.js','/style.css':'style.css','/motion.js':'motion.js','/calls.js':'calls.js','/assets/orbit.json':'assets/orbit.json'};
 http.createServer((req,res)=>{
  const path=new URL(req.url,'http://localhost').pathname;
  if(path.startsWith('/api/'))return application(req,res);
