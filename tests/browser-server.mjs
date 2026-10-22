@@ -7,7 +7,7 @@ process.env.BETTER_AUTH_URL='http://127.0.0.1:3250';
 process.env.BETTER_AUTH_SECRET='local-browser-tests-only-secret-123456789';
 const pool=await testPool();
 for(const file of (await readdir('db/migrations')).sort())await pool.exec(await readFile('db/migrations/'+file,'utf8'));
-await pool.exec(await readFile('db/seed.sql','utf8'));
+await pool.exec(await readFile('tests/community-fixture.sql','utf8'));
 const auth=createAuth(pool);
 // This fixture exists only in the isolated browser-test server and database.
 const seeded=await auth.handler(new Request(process.env.BETTER_AUTH_URL+'/api/auth/sign-up/email',{method:'POST',headers:{'Content-Type':'application/json',Origin:process.env.BETTER_AUTH_URL,'x-forwarded-for':'192.0.2.250'},body:JSON.stringify({name:'BackofficeOwner',email:'backoffice@example.com',password:'browser-admin-password-123'})}));

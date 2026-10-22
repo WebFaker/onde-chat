@@ -3,7 +3,7 @@ Une application communautaire française, avec interface sombre responsive inspi
 
 ## Fonctions disponibles
 - Espaces communautaires privés, invitations de sept jours, rôles propriétaire/administration/modération/membre, exclusion et journal de modération.
-- Un espace d'accueil commun à tous les inscrits. Les espaces créés ensuite sont privés. Dans l'accueil, les membres peuvent créer des salons ; ailleurs cette permission est réservée à la modération.
+- Aucun serveur imposé à l’inscription : chacun crée ou rejoint ses espaces sur invitation. L’ancien serveur d’accueil est archivé, avec ses données conservées.
 - Salons textuels et vocaux, messages privés entre membres partageant un espace.
 - Réponses, six réactions, modification de ses messages, suppression par l'auteur ou la modération, épinglage par la modération, recherche dans le salon et indicateurs de messages non lus.
 - Pièces jointes téléchargées avec autorisation : PNG, JPEG, WebP, GIF, PDF et texte. Limite 1 Mo par fichier et 20 Mo par utilisateur. Stockage PostgreSQL pour ce prototype ; prévoir un stockage objet pour davantage de volume.
@@ -90,3 +90,5 @@ La migration `005_profiles.sql` ajoute les champs de profil et une table de méd
 ## Backoffice
 
 `/admin.html` fournit une administration protégée côté serveur : utilisateurs, suspension et sessions, retrait de personnalisation, serveurs/salons et archivage réversible, rôles des membres, modération des messages de serveur et journal des actions. Un motif est requis pour chaque modification. L'accès est attribué manuellement à un compte existant par ses identifiants internes ; il ne dépend pas d'une simple adresse saisie à l'inscription. Voir [le fonctionnement et les limites](docs/BACKOFFICE.md).
+
+La migration `007_no_default_community.sql` arrête l’inscription automatique à l’ancien accueil et l’archive. Le seed de production ne crée aucun salon de démonstration. `tests/community-fixture.sql` est réservé aux bases isolées des tests et ne doit pas être exécuté en production. Les loaders sont liés aux requêtes réelles, avec un délai de 300 ms pour limiter les clignotements sur les réponses rapides.

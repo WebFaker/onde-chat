@@ -18,7 +18,7 @@ La migration 006 est additive. Elle crée les habilitations et le journal, ainsi
 - Journal protégé : acteur, cible, action, motif et date. Chaque modification et sa trace sont validées dans la même transaction.
 - Listes paginées par 50 éléments et recherche bornée. Aucun mot de passe ni jeton de session n'est exposé.
 
-Le compte administrateur est protégé contre sa suspension et la révocation de ses sessions par ces outils. Le serveur d'accueil ne peut pas être archivé. Le rôle propriétaire d'un serveur ne peut pas être modifié ici. Aucune suppression définitive de comptes, bases ou serveurs n'est proposée.
+Le compte administrateur est protégé contre sa suspension et la révocation de ses sessions par ces outils. L’ancien serveur d’accueil est désormais archivé par la migration 007 ; son inscription automatique est désactivée. Le rôle propriétaire d'un serveur ne peut pas être modifié ici. Aucune suppression définitive de comptes, bases ou serveurs n'est proposée.
 
 La suspension est vérifiée à chaque appel de l'API métier, même après une nouvelle connexion. Les sessions existantes sont révoquées. Better Auth peut encore accepter un mot de passe valide pour ce compte, mais l'application lui refuse l'accès tant que la suspension reste active.
 

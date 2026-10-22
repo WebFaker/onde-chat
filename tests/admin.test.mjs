@@ -2,7 +2,7 @@ import {test} from 'node:test';import assert from 'node:assert/strict';import {r
 process.env.BETTER_AUTH_SECRET='isolated-backoffice-tests-secret-123456789';process.env.BETTER_AUTH_URL='http://localhost:3000';
 test('backoffice : autorisations, modération transactionnelle, archives et suspension',async()=>{
  const pool=await testPool();try{
- for(const f of (await readdir('db/migrations')).sort())await pool.exec(await readFile('db/migrations/'+f,'utf8'));await pool.exec(await readFile('db/seed.sql','utf8'));const auth=createAuth(pool),app=createApplication({pool,auth});let ip=0;
+ for(const f of (await readdir('db/migrations')).sort())await pool.exec(await readFile('db/migrations/'+f,'utf8'));await pool.exec(await readFile('tests/community-fixture.sql','utf8'));const auth=createAuth(pool),app=createApplication({pool,auth});let ip=0;
  async function authRequest(path,data){const r=await auth.handler(new Request('http://localhost:3000/api/auth/'+path,{method:'POST',headers:{'Content-Type':'application/json',Origin:'http://localhost:3000','x-forwarded-for':'192.0.2.'+(++ip)},body:JSON.stringify(data)}));assert.equal(r.status,200,await r.clone().text());return r.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');}
  async function signup(name,email){return authRequest('sign-up/email',{name,email,password:'test-backoffice-password-123'});}
  async function api(path,cookie,data,origin='http://localhost:3000'){const req=Readable.from(data===undefined?[]:[JSON.stringify(data)]);Object.assign(req,{url:'/api/'+path,method:data===undefined?'GET':'POST',headers:{cookie,origin}});return new Promise((resolve,reject)=>app(req,{writeHead(status){this.status=status;},end(text){resolve({status:this.status,data:JSON.parse(text)});}}).catch(reject));}

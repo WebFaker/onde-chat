@@ -1,5 +1,6 @@
 import {NodeBackend} from './backend.js';
 const backend=new NodeBackend(),$=id=>document.getElementById(id),el=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;};
+let pending=0,timer;document.addEventListener('onde-request',e=>{pending=Math.max(0,pending+(e.detail==='start'?1:-1));clearTimeout(timer);if(pending)timer=setTimeout(()=>{$('load-status').hidden=false;},300);else $('load-status').hidden=true;});
 const titles={overview:'Vue d’ensemble',users:'Utilisateurs',servers:'Serveurs',channels:'Salons',messages:'Messages de serveur',audit:'Journal d’administration',members:'Membres du serveur'};
 let tab='overview',page=0,query='',server=null,version=0,applyAction;
 function button(label,fn){const b=el('button',label);b.type='button';b.onclick=fn;return b;}

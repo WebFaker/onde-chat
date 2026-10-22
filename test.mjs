@@ -10,7 +10,7 @@ process.env.BETTER_AUTH_URL='http://localhost:3000';
 test('PostgreSQL, Better Auth, profils stables et accès aux messages',{timeout:30000},async()=>{
  const pool=await testPool();try{
   for(const file of (await readdir('db/migrations')).sort())await pool.exec(await readFile('db/migrations/'+file,'utf8'));
-  await pool.exec(await readFile('db/seed.sql','utf8'));
+  await pool.exec(await readFile('tests/community-fixture.sql','utf8'));
   const auth=createAuth(pool),app=createApplication({pool,auth});
   let authClient=0;
   async function authCall(path,data,cookie){return auth.handler(new Request('http://localhost:3000/api/auth/'+path,{method:data?'POST':'GET',headers:{'Content-Type':'application/json',Origin:'http://localhost:3000','x-forwarded-for':'192.0.2.'+(++authClient),...(cookie?{cookie}:{})},...(data?{body:JSON.stringify(data)}:{})}));}
