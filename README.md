@@ -7,7 +7,7 @@ Une application communautaire française, avec interface sombre responsive inspi
 - Salons textuels et vocaux, messages privés entre membres partageant un espace.
 - Réponses, six réactions, modification de ses messages, suppression par l'auteur ou la modération, épinglage par la modération, recherche dans le salon et indicateurs de messages non lus.
 - Pièces jointes téléchargées avec autorisation : PNG, JPEG, WebP, GIF, PDF et texte. Limite 1 Mo par fichier et 20 Mo par utilisateur. Stockage PostgreSQL pour ce prototype ; prévoir un stockage objet pour davantage de volume.
-- Présentation de profil et présence récemment active. Les anciennes données de progression sont conservées mais ne sont plus affichées dans l’interface.
+- Profil avec présentation, couleur, statut personnalisé et disponibilités (dont invisible). Avatars et bannières statiques ou animés : 512 Ko, 60 images maximum ; images décodées et converties en WebP, version fixe pour la réduction des animations. Conservation dans PostgreSQL, deux images maximum par compte. Les anciennes données de progression sont conservées mais ne sont plus affichées dans l’interface.
 - Appels LiveKit : jetons autorisés par salon, micro, caméra, partage d'écran et déconnexion. **Un service LiveKit doit être connecté pour que les appels fonctionnent.** Les tests ne constituent pas une validation réelle de deux appels audio/vidéo sur Internet.
 
 ## Installer et lancer
@@ -84,3 +84,5 @@ Pas encore de vérification d'e-mail ou récupération des mots de passe, de ban
 Les thèmes classique, minuit et clair, la densité, la taille du texte et la réduction des mouvements sont gratuits et conservés sur cet appareil (Profil → Apparence). Les messages acceptent une mise en forme légère et des spoilers, construits avec des nœuds DOM sans injection HTML.
 
 Voir [l’état des fonctions et les limites](docs/DISCORD-PARITY.md). Onde ne possède pas toutes les fonctions de Discord et ne vend actuellement aucun abonnement.
+
+La migration `005_profiles.sql` ajoute les champs de profil et une table de médias bornée. Elle est additive et compatible avec l’ancienne interface ; appliquer la migration avant de publier cette interface. `sharp` décode et redimensionne les images côté serveur, sans accepter de SVG ou d’URL externe. Les téléchargements exigent un compte et une communauté ou conversation partagée.
