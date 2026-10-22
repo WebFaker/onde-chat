@@ -20,3 +20,15 @@ La synchronisation utilise un polling suspendu en arrière-plan avec recul expon
 La rétention des sauvegardes dépend du plan Neon. Avant une ouverture publique large : définir la rétention, exporter régulièrement via pg_dump (connexion directe) dans un stockage chiffré distinct, tester une restauration isolée. Ne jamais stocker un export dans Git.
 Les anciens appels/espaces restent conservés hors interface. Les tests actuels ne prouvent pas le transport audio/vidéo réel. Aucune promesse d’équivalence Discord/Nitro.
 Les journaux Vercel nécessitent une connexion autorisée au projet. Contrôler les erreurs et la latence après chaque livraison ; ne jamais contourner une protection d’accès.
+
+## Traductions
+
+Le menu « Langues » est disponible dans chaque discussion. Réglages locaux séparés par compte : langue de lecture, langue de rédaction, cible des brouillons et langue source par discussion. La traduction automatique est désactivée initialement et ne traite que les messages reçus affichés à l’écran. La détection refuse les phrases ambiguës : choisir alors explicitement la langue source.
+
+Mode local : API Translator/LanguageDetector du navigateur, détectée à l’exécution. Modèles téléchargés à la demande et traductions locales ; compatibilité limitée, notamment sur mobile. Une activation manuelle peut être nécessaire pour charger une nouvelle langue. Les tests valident le contrat des API locales avec un adaptateur simulé ; le téléchargement des modèles natifs n’est pas vérifié dans le Chromium du CI.
+
+Mode en ligne facultatif : API publique MyMemory (GET uniquement), appelée directement par le navigateur après activation explicite. Aucun secret ni nouvelle facturation. Les textes et l’adresse IP sont transmis à Translated ; sa politique prévoit conservation et traitement par ses partenaires. Ce mode n’est pas adapté aux contenus confidentiels. Ne pas le présenter comme chiffré de bout en bout ou sans conservation. Aucune contribution via les endpoints SET/IMPORT n’est effectuée. Limite annoncée : 5 000 caractères/jour en accès anonyme, avec quotas du prestataire. Chaque requête reste sous 500 octets UTF-8 et un seul paragraphe. Aucun contournement de quota et aucune substitution silencieuse d’un prestataire.
+
+Cache de traductions borné en mémoire par session, jamais en base ni dans localStorage. Arrêt des requêtes lors d’un changement de compte ; cache vidé à la déconnexion. Textes originaux conservés ; une traduction de brouillon nécessite prévisualisation, relecture et insertion explicite, puis l’action Envoyer habituelle. Une panne ou un quota bloque seulement la traduction, jamais le texte original. Les erreurs et réponses vides du service ne sont jamais affichées comme une traduction.
+
+Références : https://developer.chrome.com/docs/ai/translator-api ; https://developer.chrome.com/docs/ai/language-detection ; https://mymemory.translated.net/doc/spec.php ; https://mymemory.translated.net/doc/usagelimits.php ; https://mymemory.translated.net/terms-and-conditions .

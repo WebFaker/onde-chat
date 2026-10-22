@@ -6,7 +6,7 @@ import {getApplication} from './lib/runtime.js';
 try{process.loadEnvFile();}catch(e){if(e.code!=='ENOENT')throw e;}
 const application=getApplication();
 const root=fileURLToPath(new URL('./public/',import.meta.url));
-const files={'/admin':'admin.html','/admin.html':'admin.html','/admin.js':'admin.js','/admin.css':'admin.css','/friends.js':'friends.js','/friends.css':'friends.css','/':'index.html','/app.js':'app.js','/backend.js':'backend.js','/ringtone.js':'ringtone.js','/style.css':'style.css','/motion.js':'motion.js','/calls.js':'calls.js','/assets/orbit.json':'assets/orbit.json'};
+const files={'/admin':'admin.html','/admin.html':'admin.html','/admin.js':'admin.js','/admin.css':'admin.css','/translation-ui.js':'translation-ui.js','/translation.js':'translation.js','/exchange.js':'exchange.js','/friends.js':'friends.js','/friends.css':'friends.css','/':'index.html','/app.js':'app.js','/backend.js':'backend.js','/ringtone.js':'ringtone.js','/style.css':'style.css','/motion.js':'motion.js','/calls.js':'calls.js','/assets/orbit.json':'assets/orbit.json'};
 http.createServer((req,res)=>{
  for(const [key,value] of Object.entries(securityHeaders))res.setHeader(key,value);
  const path=new URL(req.url,'http://localhost').pathname;
