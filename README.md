@@ -86,3 +86,7 @@ Les thèmes classique, minuit et clair, la densité, la taille du texte et la r�
 Voir [l’état des fonctions et les limites](docs/DISCORD-PARITY.md). Onde ne possède pas toutes les fonctions de Discord et ne vend actuellement aucun abonnement.
 
 La migration `005_profiles.sql` ajoute les champs de profil et une table de médias bornée. Elle est additive et compatible avec l’ancienne interface ; appliquer la migration avant de publier cette interface. `sharp` décode et redimensionne les images côté serveur, sans accepter de SVG ou d’URL externe. Les téléchargements exigent un compte et une communauté ou conversation partagée.
+
+## Backoffice
+
+`/admin.html` fournit une administration protégée côté serveur : utilisateurs, suspension et sessions, retrait de personnalisation, serveurs/salons et archivage réversible, rôles des membres, modération des messages de serveur et journal des actions. Un motif est requis pour chaque modification. L'accès est attribué manuellement à un compte existant par ses identifiants internes ; il ne dépend pas d'une simple adresse saisie à l'inscription. Voir [le fonctionnement et les limites](docs/BACKOFFICE.md).
