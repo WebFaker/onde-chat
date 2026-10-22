@@ -18,6 +18,7 @@ test('espaces privés, invitations, permissions, MP, messages enrichis, fichiers
  assert.equal((await api('message',b,{id:first.id,action:'pin'})).status,403);assert.equal((await api('message',a,{id:first.id,action:'pin'})).status,200);
  assert.equal((await api('messages?channel='+chat.id,a,{text:'Réponse privée',reply_to:first.id})).status,201);
  messages=(await api('messages?channel='+chat.id,a)).data;assert.equal(messages[0].pinned,true);assert.equal(messages[0].reactions[0].emoji,'❤️');assert.equal(messages[1].reply_name,'Member');assert.equal((await api('messages?channel='+chat.id+'&q='+encodeURIComponent('édité'),a)).data.length,1);
+ await api('friends',a,{action:'request',user_id:ub.id});await api('friends',b,{action:'accept',user_id:ua.id});
  const dm=(await api('dms',a,{user_id:ub.id})).data;assert.equal((await api('messages?channel='+dm.id,c)).status,403);assert.equal((await api('messages?channel='+dm.id,a,{text:'MP'})).status,201);assert.equal((await api('messages?channel='+dm.id,b)).data[0].body,'MP');assert.equal((await api('dms',b,{user_id:ua.id})).data.id,dm.id);
  assert.equal((await api('messages?channel='+dm.id,a,{text:'reply spoof',reply_to:first.id})).status,400);
  const upload=await api('upload',b,{channel_id:chat.id,name:'note.txt',mime:'text/plain',data:Buffer.from('hello attachment').toString('base64')});assert.equal(upload.status,201);

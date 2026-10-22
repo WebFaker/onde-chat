@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {JSDOM} from 'jsdom';
 import {NodeBackend} from '../public/backend.js';
-const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
+const html=await readFile(new URL('./fixtures/community.html',import.meta.url),'utf8');
 const source=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace("import {NodeBackend} from './backend.js';",'').replace("import {createRingtone} from './ringtone.js';",'').replace("import {animateEmblems} from './motion.js';",'');
 const flush=()=>new Promise(resolve=>setTimeout(resolve,20));
 function setup(){
