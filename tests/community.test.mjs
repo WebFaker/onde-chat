@@ -54,6 +54,7 @@ test('espaces privés, invitations, permissions, MP, messages enrichis, fichiers
  assert.ok((await api('progress',b)).data.badges.some(x=>x.unlocked));
  assert.equal((await api('call',a,{channel_id:voice.id})).status,503);assert.equal((await api('call',c,{channel_id:voice.id})).status,403);
  process.env.LIVEKIT_URL='wss://test.invalid';process.env.LIVEKIT_API_KEY='isolated-test-key';process.env.LIVEKIT_API_SECRET='isolated-livekit-secret-not-a-real-key';
+ assert.equal((await api('call',c,{channel_id:dm.id})).status,403);const dmCall=await api('call',b,{channel_id:dm.id});assert.equal(dmCall.status,200);assert.equal(JSON.parse(Buffer.from(dmCall.data.token.split('.')[1],'base64url')).video.room,'onde-channel-'+dm.id);
  const call=await api('call',a,{channel_id:voice.id});assert.equal(call.status,200);const claims=JSON.parse(Buffer.from(call.data.token.split('.')[1],'base64url'));assert.equal(claims.sub,ua.id);assert.equal(claims.video.room,'onde-channel-'+voice.id);delete process.env.LIVEKIT_URL;delete process.env.LIVEKIT_API_KEY;delete process.env.LIVEKIT_API_SECRET;
  assert.equal((await api('members?server='+s,b,{user_id:ua.id,role:'member'})).status,403);
  assert.equal((await api('members?server='+s,a,{user_id:ub.id,role:'moderator'})).status,200);assert.equal((await api('channels?server='+s,b,{name:'par-la-modération'})).status,201);

@@ -25,7 +25,7 @@ Les salons vocaux disposent du client LiveKit avec micro, caméra et partage d'�
 - Permissions par salon, rôles personnalisables, bannissement, blocage, signalement et anti-spam.
 - Threads, forums, événements, sondages, messages privés de groupe.
 - Transport temps réel (les messages utilisent actuellement une actualisation toutes les cinq secondes), saisie en cours et notifications push.
-- Appels privés/de groupe, paramètres audio, qualité vidéo vérifiée et infrastructure média dimensionnée.
+- Sonnerie et invitation d’appel entrant, appels privés de groupe, réglages audio avancés, qualité vidéo vérifiée et infrastructure média dimensionnée.
 - Vérification d'e-mail et récupération du compte avec un fournisseur d'envoi configuré.
 - Si demandé : abonnement propre à Onde avec prestataire de paiement, webhooks vérifiés, droits calculés côté serveur, annulation et gestion des échecs. Aucun faux badge ne remplace ces contrôles.
 

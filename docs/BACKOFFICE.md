@@ -15,6 +15,7 @@ La migration 006 est additive. Elle crée les habilitations et le journal, ainsi
 - Serveurs : modification du nom et de la description, archivage et restauration, liste des membres et changement de leurs rôles prédéfinis.
 - Salons : modification du nom et du sujet, archivage et restauration.
 - Messages des serveurs : recherche et masquage pour modération. Les messages privés et leur contenu ne sont pas listés.
+- Diagnostic LiveKit : vérifier la présence des variables et l’acceptation des clés par le service, sans ouvrir de salle ni divulguer les clés.
 - Journal protégé : acteur, cible, action, motif et date. Chaque modification et sa trace sont validées dans la même transaction.
 - Listes paginées par 50 éléments et recherche bornée. Aucun mot de passe ni jeton de session n'est exposé.
 
