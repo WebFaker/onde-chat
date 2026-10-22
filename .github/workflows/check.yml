@@ -5,6 +5,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,6 +14,15 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: node --check client/location.js && node --check public/partner-discovery.js && node --check lib/features/partners.js && node --check client/translation.js && node --check public/translation-ui.js && node --check public/friends.js && node --check public/app.js && node --check public/backend.js && node --check server.mjs && node --check api/handler.js
-
-      - run: npx playwright install --with-deps chromium
+      - name: Prepare browser
+        timeout-minutes: 7
+        shell: bash
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "PLAYWRIGHT_CHROMIUM_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          elif command -v chromium >/dev/null 2>&1; then
+            echo "PLAYWRIGHT_CHROMIUM_PATH=$(command -v chromium)" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chromium
+          fi
       - run: npm run test:browser

@@ -25,3 +25,5 @@ Le navigateur appelle directement le service client gratuit BigDataCloud avec la
 Le fuseau IANA est calculé localement depuis les coordonnées par tz-lookup puis peut être confirmé dans le profil. Ses frontières géographiques approximatives peuvent nécessiter une correction près d’une frontière. La position exacte n’est ni envoyée au backend Onde ni enregistrée : le client arrondit au dixième de degré et le backend impose aussi cet arrondi. Les autres membres reçoivent seulement la ville, le pays, le fuseau et une distance arrondie à 25 km. Le bouton Retirer ma localisation efface immédiatement la position approximative et la ville du profil. Le fuseau reste un réglage indépendant pour les disponibilités.
 
 La localisation reste déclarative : aucune garantie d’authenticité contre un appareil modifié. Les formats vocaux et appels sont des préférences de rencontre ; cette livraison n’ajoute pas de bouton d’appel ou de prise de contrôle à distance.
+
+Un blocage ou un retrait de la relation annule les invitations en attente et termine les Duos ouverts. Un déblocage ne réactive pas les anciennes propositions.
