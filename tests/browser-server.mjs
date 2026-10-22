@@ -1,3 +1,4 @@
+import {securityHeaders} from '../lib/headers.js';
 import http from 'node:http';
 import {readFile,readdir} from 'node:fs/promises';
 import {testPool} from './postgres.js';
@@ -15,7 +16,7 @@ if(!seeded.ok)throw Error('Unable to create isolated admin fixture');
 await pool.query(`INSERT INTO site_admins(profile_id,auth_user_id) SELECT i.profile_id,i.subject FROM identity_links i JOIN "user" u ON u.id=i.subject WHERE i.provider='better-auth' AND u.email='backoffice@example.com'`);
 const app=createApplication({pool,auth});
 const files={'/admin':'admin.html','/admin.html':'admin.html','/admin.js':'admin.js','/admin.css':'admin.css','/friends.js':'friends.js','/friends.css':'friends.css','/':'index.html','/app.js':'app.js','/backend.js':'backend.js','/ringtone.js':'ringtone.js','/style.css':'style.css','/motion.js':'motion.js','/calls.js':'calls.js','/assets/orbit.json':'assets/orbit.json'};
-http.createServer(async(req,res)=>{const p=new URL(req.url,'http://localhost').pathname;
+http.createServer(async(req,res)=>{for(const [key,value] of Object.entries(securityHeaders))res.setHeader(key,value);const p=new URL(req.url,'http://localhost').pathname;
  if(p.startsWith('/api/'))return app(req,res);
  if(!files[p]){res.writeHead(404);return res.end('Not found');}
  res.setHeader('Content-Type',p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.json')?'application/json':'text/html');res.end(await readFile('public/'+files[p]));
